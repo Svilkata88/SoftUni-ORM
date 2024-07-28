@@ -1,4 +1,8 @@
+from datetime import timedelta
+
 from django.db import models
+from django.db.models import QuerySet, Q, F
+
 from main_app.custom_managers import RealEstateListingManager, VideoGameManager
 from main_app.validators import RangeValidator
 
@@ -56,6 +60,21 @@ class Invoice(models.Model):
     invoice_number = models.CharField(max_length=20, unique=True)
     billing_info = models.OneToOneField(BillingInfo, on_delete=models.CASCADE)
 
+    @classmethod
+    def get_invoices_with_prefix(cls, prefix: str) -> QuerySet:
+        invoices = Invoice.objects.filter(invoice_number__startswith=prefix)
+        return invoices
+
+    @classmethod
+    def get_invoices_sorted_by_number(cls):
+        invoices = Invoice.objects.order_by('invoice_number')
+        return invoices
+
+    @classmethod
+    def get_invoice_with_billing_info(cls, invoice_number: str):
+        invoice = Invoice.objects.get(invoice_number=invoice_number)
+        return invoice
+
 
 class Technology(models.Model):
     name = models.CharField(max_length=100)
@@ -67,10 +86,17 @@ class Project(models.Model):
     description = models.TextField()
     technologies_used = models.ManyToManyField(Technology, related_name='projects')
 
+    def get_programmers_with_technologies(self) -> QuerySet:
+        programmers_technologies = self.programmers.prefetch_related('projects__technologies_used')
+        return programmers_technologies
+
 
 class Programmer(models.Model):
     name = models.CharField(max_length=100)
     projects = models.ManyToManyField(Project, related_name='programmers')
+
+    def get_projects_with_technologies(self) -> QuerySet:
+        return self.projects.prefetch_related('technologies_used')
 
 
 class Task(models.Model):
@@ -87,6 +113,38 @@ class Task(models.Model):
     creation_date = models.DateField()
     completion_date = models.DateField()
 
+    @classmethod
+    def ongoing_high_priority_tasks(cls) -> QuerySet:
+        tasks = cls.objects.filter(
+            priority='High',
+            is_completed=False,
+            completion_date__gt=F('creation_date')
+        )
+        return tasks
+
+    @classmethod
+    def completed_mid_priority_tasks(cls) -> QuerySet:
+        tasks = cls.objects.filter(
+            priority='Medium',
+            is_completed=True
+        )
+        return tasks
+
+    @classmethod
+    def search_tasks(cls, query: str) -> QuerySet:
+        tasks = cls.objects.filter(
+            Q(title__icontains=query) | Q(description__icontains=query)
+        )
+        return tasks
+
+    @classmethod
+    def recent_completed_tasks(cls, days: int) -> QuerySet:
+        tasks = cls.objects.filter(
+            is_completed=True,
+            completion_date__gte=F('creation_date')-timedelta(days=days)
+        )
+        return tasks
+
 
 class Exercise(models.Model):
     name = models.CharField(max_length=100)
@@ -94,3 +152,34 @@ class Exercise(models.Model):
     difficulty_level = models.PositiveIntegerField()
     duration_minutes = models.PositiveIntegerField()
     repetitions = models.PositiveIntegerField()
+
+    @classmethod
+    def get_long_and_hard_exercises(cls) -> QuerySet:
+        exercises = cls.objects.filter(
+            duration_minutes__gt=30,
+            difficulty_level__gte=10,
+        )
+        return exercises
+
+    @classmethod
+    def get_short_and_easy_exercises(cls) -> QuerySet:
+        exercises = cls.objects.filter(
+            duration_minutes__lt=15,
+            difficulty_level__lt=5,
+        )
+        return exercises
+
+    @classmethod
+    def get_exercises_within_duration(cls, min_duration: int, max_duration: int) -> QuerySet:
+        exercises = cls.objects.filter(
+            duration_minutes__range=(min_duration, max_duration)
+        )
+        return exercises
+
+    @classmethod
+    def get_exercises_with_difficulty_and_repetitions(cls, min_difficulty: int, min_repetitions: int) -> QuerySet:
+        exercises = cls.objects.filter(
+            difficulty_level__gte=min_difficulty,
+            repetitions__gte=min_repetitions
+        )
+        return exercises

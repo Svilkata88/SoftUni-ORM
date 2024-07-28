@@ -6,7 +6,9 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "orm_skeleton.settings")
 django.setup()
 
 # Import your models here
-from main_app.models import RealEstateListing, VideoGame
+from main_app.models import RealEstateListing, VideoGame, BillingInfo, Invoice, Technology, Project, Programmer, \
+    Exercise
+
 
 # Run and print your queries
 
@@ -70,4 +72,185 @@ from main_app.models import RealEstateListing, VideoGame
 
 # ---------------------------------------------------------------------------------------------------------------------
 
-# Task 3 /
+# Task 3 / Shopaholic Haven
+
+# # Create BillingInfo instances with real addresses
+# billing_info_1 = BillingInfo.objects.create(address="456 Oak Lane, Boston, MA02108")
+# billing_info_2 = BillingInfo.objects.create(address="789 Maple Avenue, SanFrancisco, CA 94101")
+# billing_info_3 = BillingInfo.objects.create(address="101 Pine Street, New York, NY10001")
+# # Create Invoice instances with related BillingInfo
+# invoice_1 = Invoice.objects.create(invoice_number="INV007",billing_info=billing_info_1)
+# invoice_2 = Invoice.objects.create(invoice_number="INV002",billing_info=billing_info_2)
+# invoice_3 = Invoice.objects.create(invoice_number="INV004",billing_info=billing_info_3)
+# # Get invoices starting with a specific prefix
+# invoices_with_prefix = Invoice.get_invoices_with_prefix("INV")
+# for invoice in invoices_with_prefix:
+#     print(f"Invoice Number with prefix INV: {invoice.invoice_number}")
+# # Get invoices sorted by invoice number
+# invoices_sorted = Invoice.get_invoices_sorted_by_number()
+# for invoice in invoices_sorted:
+#     print(f"Invoice Number: {invoice.invoice_number}")
+#     # Get an invoice by a specific invoice number along with its related billing info
+# invoice = Invoice.get_invoice_with_billing_info("INV002")
+# print(f"Invoice Number: {invoice.invoice_number}")
+# print(f"Billing Info: {invoice.billing_info.address}")
+
+# ---------------------------------------------------------------------------------------------------------------------
+
+# Task 4 / IT Sector
+#
+# Create instances of Technology
+# tech1 = Technology.objects.create(name="Python", description="A high-level programming language")
+# tech2 = Technology.objects.create(name="JavaScript", description="A scripting language for the web")
+# tech3 = Technology.objects.create(name="SQL", description="Structured Query Language")
+#
+# # Create instances of Project
+# project1 = Project.objects.create(name="Web App Project", description="Developing a web application")
+# project1.technologies_used.add(tech1, tech2)
+# project2 = Project.objects.create(name="Database Project", description="Managing databases")
+# project2.technologies_used.add(tech3)
+# # Create instances of Programmer
+# programmer1 = Programmer.objects.create(name="Alice")
+# programmer2 = Programmer.objects.create(name="Bob")
+# # Associate projects with programmers
+# programmer1.projects.add(project1, project2)
+# programmer2.projects.add(project1)
+# Execute the "get_programmers_with_technologies" method for a specific project
+# specific_project = Project.objects.get(name="Web App Project")
+# programmers_with_technologies = specific_project.get_programmers_with_technologies()
+#
+# # Iterate through the related programmers and technologies
+# for programmer in programmers_with_technologies:
+#     print(f"Programmer: {programmer.name}")
+#     for technology in programmer.projects.get(name="Web App Project").technologies_used.all():
+#         print(f"- Technology: {technology.name}")
+#
+# # Execute the "get_projects_with_technologies" method for a specific programmer
+# specific_programmer = Programmer.objects.get(name="Alice")
+# projects_with_technologies = specific_programmer.get_projects_with_technologies()
+#
+# # Iterate through the related projects and technologies
+# for project in projects_with_technologies:
+#     print(f"Project: {project.name} for {specific_programmer.name}")
+#     for technology in project.technologies_used.all():
+#         print(f"- Technology: {technology.name}")
+
+# ---------------------------------------------------------------------------------------------------------------------
+
+# Task 5 / Taskify
+
+# Create task instances with custom creation dates
+# task1 = Task(
+#     title="Task 1",
+#     description="Description for Task 1",
+#     priority="High",
+#     creation_date=date(2023, 1, 15),
+#     completion_date=date(2023, 1, 25)
+# )
+#
+# task2 = Task(
+#     title="Task 2",
+#     description="Description for Task 2",
+#     priority="Medium",
+#     is_completed=True,
+#     creation_date=date(2023, 2, 1),
+#     completion_date=date(2023, 2, 10)
+# )
+#
+# task3 = Task(
+#     title="Task 3",
+#     description="Description for Task 3",
+#     priority="Hard",
+#     is_completed=True,
+#     creation_date=date(2023, 1, 15),
+#     completion_date=date(2023, 1, 20)
+# )
+#
+# # Save the tasks to the database
+# task1.save()
+# task2.save()
+# task3.save()
+#
+# # Now, you can run the defined methods
+#
+# # 1. Get ongoing high-priority tasks
+# ongoing_high_priority = Task.ongoing_high_priority_tasks()
+# print("Ongoing High Priority Tasks:")
+# for task in ongoing_high_priority:
+#     print('- ' + task.title)
+#
+# # 2. Get completed medium-priority tasks
+# completed_mid_priority = Task.completed_mid_priority_tasks()
+# print("Completed Medium Priority Tasks:")
+# for task in completed_mid_priority:
+#     print('- ' + task.title)
+#
+# # 3. Search for tasks based on a query
+# search_results = Task.search_tasks("Task 3")
+# print("Search Results:")
+# for task in search_results:
+#     print('- ' + task.title)
+#
+# # 4. Get recent completed tasks
+# recent_completed = task1.recent_completed_tasks(days=5)
+# print("Recent Completed Tasks:")
+# for task in recent_completed:
+#     print('- ' + task.title)
+
+# ---------------------------------------------------------------------------------------------------------------------
+
+# Task 6 / Gym Session
+
+# Create instances of Exercise
+# exercise1 = Exercise.objects.create(
+#     name="Push-ups",
+#     category="Strength",
+#     difficulty_level=4,
+#     duration_minutes=10,
+#     repetitions=50,
+# )
+#
+# exercise2 = Exercise.objects.create(
+#     name="Running",
+#     category="Cardio",
+#     difficulty_level=7,
+#     duration_minutes=20,
+#     repetitions=0,
+# )
+#
+# exercise3 = Exercise.objects.create(
+#     name="Pull-ups",
+#     category="Strength",
+#     difficulty_level=13,
+#     duration_minutes=35,
+#     repetitions=20,
+# )
+
+# Print the results
+# long_and_hard_exercises = Exercise.get_long_and_hard_exercises()
+# print("Long and hard exercises:")
+# for exercise in long_and_hard_exercises:
+#     print('- ' + exercise.name)
+#
+# short_and_easy_exercises = Exercise.get_short_and_easy_exercises()
+# print("Short and easy exercises:")
+# for exercise in short_and_easy_exercises:
+#     print('- ' + exercise.name)
+#
+# exercises_within_duration = Exercise.get_exercises_within_duration(20, 40)
+# print(f"Exercises within 20 - 40 minutes:")
+# for exercise in exercises_within_duration:
+#     print('- ' + exercise.name)
+#
+# exercises_with_difficulty_and_repetitions = Exercise.get_exercises_with_difficulty_and_repetitions(6, 15)
+# print(f"Exercises with difficulty 6+ and repetitions 15+:")
+# for exercise in exercises_with_difficulty_and_repetitions:
+#     print('- ' + exercise.name)
+
+
+class ZooDisplayAnimal(Animal):
+    SPECIES_AT_RISK = ["Cross River Gorilla", "Orangutan", "Green Turtle"]
+
+    def is_endangered(self):
+        danger = self.species in self.SPECIES_AT_RISK
+        return f"{self.species} is at risk!" if danger else f"{self.species} is not at risk."
