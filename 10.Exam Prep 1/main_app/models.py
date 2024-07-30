@@ -76,4 +76,4 @@ class Movie(LastUpdatedMixIn, models.Model):
 
     starring_actor = models.ForeignKey(to=Actor, null=True, on_delete=models.SET_NULL)
 
-    actors = models.ManyToManyField(to=Actor, related_name='actors')
+    actors = models.ManyToManyField(to=Actor, related_name='movies')

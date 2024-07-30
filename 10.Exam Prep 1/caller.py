@@ -7,7 +7,7 @@ django.setup()
 
 # Import your models here
 from main_app.models import Director, Actor, Movie
-from django.db.models import Count, Avg, Q
+from django.db.models import Count, Avg, Q, F
 
 
 # Create queries within functions
@@ -47,3 +47,37 @@ def get_top_actor():
     return (f"Top Actor: {top_actor.full_name}, "
             f"starring in movies: {movie_titles}, "
             f"movies average rating: {top_actor.avg_rating:.1f}")
+
+def get_actors_by_movies_count():
+    actors = Actor.objects.prefetch_related('movies').annotate(
+        n_movies=Count('movies')
+    ).order_by('-n_movies', 'full_name')[:3]
+
+    if not actors or not actors[0].n_movies:
+        return ''
+    result_list = [f'{a.full_name}, participated in {a.n_movies} movies' for a in actors]
+    return '\n'.join(result_list)
+
+def get_top_rated_awarded_movie():
+    movie = Movie.objects.filter(is_awarded=True).order_by('-rating', 'title').first()
+
+    if movie is None:
+        return ''
+
+    str_actor = movie.starring_actor.full_name if movie.starring_actor else 'N/A'
+
+    cast = ', '.join([act.full_name for act in movie.actors.order_by('full_name')])
+
+    return (f"Top rated awarded movie: {movie.title}, "
+            f"rating: {movie.rating:.1f}. "
+            f"Starring actor: {str_actor}. "
+            f"Cast: {cast}.")
+
+def increase_rating():
+    cl_movies = Movie.objects.filter(is_classic=True, rating__lt=10)
+    updated_movies = cl_movies.count()
+    if updated_movies == 0:
+        return "No ratings increased."
+    cl_movies.update(rating=F('rating') + 0.1)
+
+    return f"Rating increased for {updated_movies} movies."
